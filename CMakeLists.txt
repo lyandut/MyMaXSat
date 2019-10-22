@@ -7,4 +7,4 @@ add_executable(MyMaxSat main.cpp
         data/variable.hpp data/clause.hpp data/formula.hpp
         algorithm/randomizedSolver.hpp
         algorithm/derandomizedSolver.hpp
-        )
+        config.h)
