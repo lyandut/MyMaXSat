@@ -26,6 +26,8 @@ public:
 
     Variable() : Variable(0) {}
 
+    bool operator==(const Variable &var) const { return id == var.id; }
+
     String toString() {
         return type == VarType::positive ? "X" + std::to_string(id) : "~X" + std::to_string(id);
     }

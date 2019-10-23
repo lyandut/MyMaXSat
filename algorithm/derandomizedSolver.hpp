@@ -5,6 +5,10 @@
 #ifndef MYMAXSAT_DERANDOMIZEDSOLVER_HPP
 #define MYMAXSAT_DERANDOMIZEDSOLVER_HPP
 
+#include <cmath>
+#include <algorithm>
+#include "../data/formula.hpp"
+
 class DerandomizedSolver {
 
 public:
@@ -13,128 +17,107 @@ public:
 public:
     DerandomizedSolver(Formula &_formula) : formula(_formula) {}
 
-public:
-    // 计算期望
-    double expected(List<Clause> clauses, int[] expectation) {
-        double sum = 0.0;
-        int i = 0;
-
-        for (Clause c : clauses) {
-            expectation[i] = c.getVariables().size();
-            sum += (1 - 1 / Math.pow(2, expectation[i])) * c.getWeight();
-            i++;
-        }
-
-        return sum;
-    }
-
-    double expectedIf(List<Clause> clauses, int[] unrestrictedNo, boolean[] fulfilled, Variable var, boolean val) {
-        double sum = 0.0;
-        int i = 0;
-
-        for (Clause c : clauses) {
-            if (fulfilled[i]) {
-                sum += c.getWeight();
-            } else if (unrestrictedNo[i] != 0) { // i fulfilled is false & unrestricted is non-zero: expected = 0
-                if (c.getVariables().contains(var)) {
-                    Variable clauseVar = c.getVariables().get(
-                            c.getVariables().indexOf(var));
-                    if ((clauseVar.isNegated() && val == false) || (!clauseVar.isNegated() && val == true)) {
-                        sum += c.getWeight();
-                    } else {
-                        if (unrestrictedNo[i] > 1)
-                            sum += (1 - 1 / Math.pow(2, unrestrictedNo[i] - 1)) * c.getWeight();
-                    }
-                } else {
-                    sum += (1 - 1 / Math.pow(2, unrestrictedNo[i])) * c.getWeight();
-                }
-            }
-            i++;
-        }
-
-        return sum;
-    }
-
-    void expectedUpdate(List<Clause> clauses, int[] unrestrictedNo, boolean[] fulfilled, Variable var, boolean val) {
-        int i = 0;
-
-        for (Clause c : clauses) {
-            if (!fulfilled[i] &&
-                unrestrictedNo[i] != 0) { // i fulfilled is false & unrestricted is non-zero: expected = 0
-                if (c.getVariables().contains(var)) {
-                    Variable clauseVar = c.getVariables().get(
-                            c.getVariables().indexOf(var));
-                    if ((clauseVar.isNegated() && val == false) || (!clauseVar.isNegated() && val == true)) {
-                        fulfilled[i] = true;
-                    }
-                    unrestrictedNo[i]--;
-                }
-            }
-            i++;
-        }
-    }
-
-    int numberFulfilledByVar(List<Clause> clauses, int[] unrestrictedNo, boolean[] fulfilled, Variable var, boolean val) {
-        int sum = 0;
-        int i = 0;
-
-        for (Clause c : clauses) {
-            if (!fulfilled[i] &&
-                unrestrictedNo[i] != 0) { // i fulfilled is false & unrestricted is non-zero: expected = 0
-                if (c.getVariables().contains(var)) {
-                    Variable clauseVar = c.getVariables().get(
-                            c.getVariables().indexOf(var));
-                    if ((clauseVar.isNegated() && val == false) || (!clauseVar.isNegated() && val == true)) {
-                        sum += c.getWeight();
-                    }
-                }
-            }
-            i++;
-        }
-
-        return sum;
-    }
-
-    int calculate() {
-        int[]
-        unrestrictedNo = new int[formula.getClauses().size()]; //contains number of still abstract variables per clause
-        boolean[]
-        fulfilled = new boolean[formula.getClauses().size()];
-
-        expected(formula.getClauses(), unrestrictedNo);
-        for (Variable v : formula.getVariables()) {
-            double expectedTrue = expectedIf(formula.getClauses(), unrestrictedNo, fulfilled, v, true)
-                                  + numberFulfilledByVar(formula.getClauses(), unrestrictedNo, fulfilled, v, true);
-            double expectedFalse = expectedIf(formula.getClauses(), unrestrictedNo, fulfilled, v, true)
-                                   + numberFulfilledByVar(formula.getClauses(), unrestrictedNo, fulfilled, v, false);
-
-            if (expectedTrue > expectedFalse) {
-                v.setValue(true);
-                expectedUpdate(formula.getClauses(), unrestrictedNo, fulfilled, v, true);
-            } else {
-                v.setValue(false);
-                expectedUpdate(formula.getClauses(), unrestrictedNo, fulfilled, v, false);
-            }
-        }
-
-        int sum = 0;
-        int i = 0;
-        for (Clause c : formula.getClauses()) {
-            if (fulfilled[i])
-                sum += c.getWeight();
-            i++;
-        }
-
-
-        return sum;
-    }
-
     void solve() {
         int total_weight = calculate();
         std::cout << formula.toString() << std::endl;
-        for (auto & v : formula.variables)
+        for (auto &v : formula.variables)
             std::cout << v.toString() << ": " << v.value << std::endl;
         std::cout << "Total value: " << total_weight << std::endl;
+    }
+
+private:
+    int calculate() {
+        List<int> unfilled_num(formula.clauses.size(), 0);     // 剩余未指定变量数
+        List<bool> full_filled(formula.clauses.size(), false); // 子句是否完全填充
+
+        // 计算一般期望，同时初始化 unfilled_num
+        expected(formula.clauses, unfilled_num);
+        for (auto &v : formula.variables) {
+            double expectedTrue = expectedIf(formula.clauses, unfilled_num, full_filled, v, true)
+                                  + numberFulfilledByVar(formula.clauses, unfilled_num, full_filled, v, true);
+            double expectedFalse = expectedIf(formula.clauses, unfilled_num, full_filled, v, true)
+                                   + numberFulfilledByVar(formula.clauses, unfilled_num, full_filled, v, false);
+
+            if (expectedTrue > expectedFalse) {
+                v.value = true;
+                expectedUpdate(formula.clauses, unfilled_num, full_filled, v, true);
+            } else {
+                v.value = false;
+                expectedUpdate(formula.clauses, unfilled_num, full_filled, v, false);
+            }
+        }
+
+        int total_weight = 0;
+        for (int i = 0; i < formula.clauses.size(); ++i) {
+            if (full_filled[i]) { total_weight += formula.clauses[i].weight; }
+        }
+        return total_weight;
+    }
+
+    double expected(const List<Clause> &clauses, List<int> &unfilled_num) {
+        double sum = 0.0;
+        for (int i = 0; i < clauses.size(); ++i) {
+            unfilled_num[i] = static_cast<int>(clauses[i].variables.size());
+            sum += (1 - 1 / std::pow(2, unfilled_num[i])) * clauses[i].weight;
+        }
+        return sum;
+    }
+
+    double expectedIf(const List<Clause> &clauses, const List<int> &unfilled_num, const List<bool> &full_filled,
+                      const Variable &var, bool val) {
+        double sum = 0.0;
+        for (int i = 0; i < clauses.size(); ++i) {
+            if (!full_filled[i] && unfilled_num[i]) {
+                auto iter = std::find(clauses[i].variables.begin(), clauses[i].variables.end(), var);
+                if (iter != clauses[i].variables.end()) { // 子句包含当前变量
+                    if ((iter->type == Variable::VarType::positive && val) ||
+                        (iter->type == Variable::VarType::negative && !val)) {
+                        sum += clauses[i].weight;
+                    } else {
+                        sum += (1 - 1 / std::pow(2, unfilled_num[i] - 1)) * clauses[i].weight;
+                    }
+                } else { // 子句不包含当前变量
+                    sum += (1 - 1 / std::pow(2, unfilled_num[i])) * clauses[i].weight;
+                }
+            }
+            if (full_filled[i]) {  // 子句已完全填充
+                sum += clauses[i].weight;
+            }
+        }
+        return sum;
+    }
+
+    int numberFulfilledByVar(const List<Clause> &clauses, const List<int> &unfilled_num, const List<bool> &full_filled,
+                             const Variable &var, bool val) {
+        int sum = 0;
+        for (int i = 0; i < clauses.size(); ++i) {
+            if (!full_filled[i] && unfilled_num[i]) {
+                auto iter = std::find(clauses[i].variables.begin(), clauses[i].variables.end(), var);
+                if (iter != clauses[i].variables.end()) {
+                    if ((iter->type == Variable::VarType::positive && val) ||
+                        (iter->type == Variable::VarType::negative && !val)) {
+                        sum += clauses[i].weight;
+                    }
+                }
+            }
+        }
+        return sum;
+    }
+
+    void expectedUpdate(const List<Clause> &clauses, List<int> &unfilled_num, List<bool> &full_filled,
+                        const Variable &var, bool val) {
+        for (int i = 0; i < clauses.size(); ++i) {
+            if (!full_filled[i] && unfilled_num[i] != 0) {
+                auto iter = std::find(clauses[i].variables.begin(), clauses[i].variables.end(), var);
+                if (iter != clauses[i].variables.end()) {
+                    if ((iter->type == Variable::VarType::positive && val) ||
+                        (iter->type == Variable::VarType::negative && !val)) {
+                        full_filled[i] = true;
+                    }
+                    --unfilled_num[i];
+                }
+            }
+        }
     }
 };
 

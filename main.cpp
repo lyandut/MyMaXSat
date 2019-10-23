@@ -34,8 +34,8 @@ int main() {
 
    std::cout << "---" << std::endl;
 
-//    DerandomizedSolver derandSolver(f);
-//    derandSolver.solve();
+    DerandomizedSolver derandSolver(f);
+    derandSolver.solve();
 
     return 0;
 }

@@ -6,7 +6,6 @@
 #define MYMAXSAT_FORMULA_HPP
 
 #include <utility>
-
 #include "clause.hpp"
 
 class Formula {
