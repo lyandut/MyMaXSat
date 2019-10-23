@@ -5,8 +5,9 @@
 #ifndef MYMAXSAT_CLAUSE_HPP
 #define MYMAXSAT_CLAUSE_HPP
 
-#include "variable.hpp"
 #include <cassert>
+#include <utility>
+#include "variable.hpp"
 
 class Clause {
 public:
@@ -14,15 +15,22 @@ public:
     int weight;
 
 public:
-    Clause(List<Variable> & var, int w) : variables(var), weight(w) { assert(w >= 0); }
-    Clause(int w) : weight(w) { assert(w>=0); }
-    Clause() : Clause(0) {}
+    Clause(List<Variable> var, int w) : variables(std::move(var)), weight(w) { assert(w >= 0); }
 
+    Clause(int w) : weight(w) { assert(w >= 0); }
 
+    Clause() : Clause(1) {}
 
+    inline void addVariable(const Variable & var) { variables.push_back(var); }
 
-
-
+    String toString(bool show_weight = false) {
+        String str = "(";
+        for (auto iter = variables.begin(); iter != variables.end() - 1; ++iter)
+            str += iter->toString() + " \\/ ";
+        str += variables.back().toString() + ")";
+        if (show_weight) { str += "{" + std::to_string(weight) + "}"; }
+        return str;
+    }
 
 };
 

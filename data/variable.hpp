@@ -8,24 +8,27 @@
 #include "../config.h"
 
 class Variable {
-    enum VarType { positive, negative };
 
 public:
     ID id;
     bool value;
-    VarType type;
+    enum VarType {
+        positive, negative
+    } type;
+
 
 public:
     Variable(int _id, bool _value, VarType _type) : id(_id), value(_value), type(_type) {}
+
     Variable(int _id, VarType _type) : Variable(_id, false, _type) {}
+
     Variable(int _id) : Variable(_id, VarType::positive) {}
+
     Variable() : Variable(0) {}
 
-    String toString(ID i) {
+    String toString() {
         return type == VarType::positive ? "X" + std::to_string(id) : "~X" + std::to_string(id);
     }
-
-
 
 
 };
