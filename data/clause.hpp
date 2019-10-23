@@ -23,7 +23,7 @@ public:
 
     inline void addVariable(const Variable & var) { variables.push_back(var); }
 
-    String toString(bool show_weight = false) {
+    String toString(bool show_weight = true) const {
         String str = "(";
         for (auto iter = variables.begin(); iter != variables.end() - 1; ++iter)
             str += iter->toString() + " \\/ ";

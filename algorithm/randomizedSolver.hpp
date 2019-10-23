@@ -20,11 +20,11 @@ public:
     void solve() {
         randomize();
         int total_weight = 0;
-        for (auto &c : formula.getSatisfiedClauses())
+        for (const auto &c : formula.getSatisfiedClauses())
             total_weight += c.weight;
 
         std::cout << formula.toString() << std::endl;
-        for (auto &v : formula.variables)
+        for (const auto &v : formula.variables)
             std::cout << v.toString() << ": " << v.value << std::endl;
         std::cout << "Total value: " << total_weight << std::endl;
     }

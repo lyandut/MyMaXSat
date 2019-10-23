@@ -5,6 +5,7 @@
 #ifndef MYMAXSAT_FORMULA_HPP
 #define MYMAXSAT_FORMULA_HPP
 
+#include <algorithm>
 #include <utility>
 #include "clause.hpp"
 
@@ -12,11 +13,12 @@ class Formula {
 public:
     List<Clause> clauses;
     List<Variable> variables;
-    HashMap<ID, bool> var_value_map;
+private:
+    HashMap<ID, bool> variables_map;
 
 public:
     Formula(List<Clause> cla, List<Variable> var) : clauses(std::move(cla)), variables(std::move(var)) {
-        for (auto &v : variables) { var_value_map[v.id] = v.value; }
+        for (auto &v : variables) { variables_map[v.id] = v.value; }
     }
 
     Formula() = default;
@@ -25,16 +27,17 @@ public:
         List<Clause> satisfied_clauses;
         satisfied_clauses.reserve(clauses.size());
         for (auto &c : clauses) {
-            bool satisfied = true;
-            for (auto &v : c.variables)
-                satisfied &= v.type == Variable::VarType::positive == getVariableValue(v.id);
+            bool satisfied = false;
+            for (auto &v : c.variables) {
+                satisfied |= v.type == Variable::VarType::positive == getVariableValue(v);
+            }
             if (satisfied)
                 satisfied_clauses.push_back(c);
         }
         return satisfied_clauses;
     }
 
-    String toString() {
+    String toString() const {
         String str = "[";
         for (auto iter = clauses.begin(); iter != clauses.end() - 1; ++iter)
             str += iter->toString() + " /\\ ";
@@ -44,16 +47,15 @@ public:
 
 private:
     bool getVariableValue(Variable &var) {
-        for (auto &v : variables)
-            if (v.id == var.id)
-                return v.value;
-        return false;
+        auto iter = std::find(variables.begin(), variables.end(), var);
+        assert(iter != variables.end());
+        return iter->value;
     }
 
-    inline bool getVariableValue(ID var_id) {
-        if (var_value_map.find(var_id) != var_value_map.end())
-            return var_value_map.at(var_id);
-        return false;
+    bool getVariableValue(ID var_id) {
+        auto iter = variables_map.find(var_id);
+        assert(iter != variables_map.end());
+        return variables_map.at(var_id);
     }
 
 };

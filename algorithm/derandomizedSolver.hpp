@@ -18,103 +18,93 @@ public:
     DerandomizedSolver(Formula &_formula) : formula(_formula) {}
 
     void solve() {
-        int total_weight = calculate();
+        int total_weight = derandomize();
+        int total_weight2 = 0;
+        for (auto &c : formula.getSatisfiedClauses())
+            total_weight2 += c.weight;
+
         std::cout << formula.toString() << std::endl;
         for (auto &v : formula.variables)
             std::cout << v.toString() << ": " << v.value << std::endl;
-        std::cout << "Total value: " << total_weight << std::endl;
+        std::cout << "Total value: " << total_weight << " " << total_weight2 << std::endl;
     }
 
 private:
-    int calculate() {
-        List<int> unfilled_num(formula.clauses.size(), 0);     // 剩余未指定变量数
-        List<bool> full_filled(formula.clauses.size(), false); // 子句是否完全填充
+    int derandomize() {
+        List<int> unspecified_num(formula.clauses.size(), 0);   // 剩余未指定变量数
+        List<bool> is_satisfied(formula.clauses.size(), false); // 子句是否满足
 
-        // 计算一般期望，同时初始化 unfilled_num
-        expected(formula.clauses, unfilled_num);
+        expectedGeneral(unspecified_num);
         for (auto &v : formula.variables) {
-            double expectedTrue = expectedIf(formula.clauses, unfilled_num, full_filled, v, true)
-                                  + numberFulfilledByVar(formula.clauses, unfilled_num, full_filled, v, true);
-            double expectedFalse = expectedIf(formula.clauses, unfilled_num, full_filled, v, true)
-                                   + numberFulfilledByVar(formula.clauses, unfilled_num, full_filled, v, false);
+            double expectedTrue = expectedConditional(unspecified_num, is_satisfied, v, true);
+            double expectedFalse = expectedConditional(unspecified_num, is_satisfied, v, false);
 
             if (expectedTrue > expectedFalse) {
                 v.value = true;
-                expectedUpdate(formula.clauses, unfilled_num, full_filled, v, true);
+                expectedUpdate(unspecified_num, is_satisfied, v, true);
             } else {
                 v.value = false;
-                expectedUpdate(formula.clauses, unfilled_num, full_filled, v, false);
+                expectedUpdate(unspecified_num, is_satisfied, v, false);
             }
         }
 
         int total_weight = 0;
         for (int i = 0; i < formula.clauses.size(); ++i) {
-            if (full_filled[i]) { total_weight += formula.clauses[i].weight; }
+            if (is_satisfied[i]) { total_weight += formula.clauses[i].weight; }
         }
         return total_weight;
     }
 
-    double expected(const List<Clause> &clauses, List<int> &unfilled_num) {
+    // 计算一般期望，同时初始化 unfilled_num
+    double expectedGeneral(List<int> &unspecified_num) {
+        const auto &clauses = formula.clauses;
         double sum = 0.0;
         for (int i = 0; i < clauses.size(); ++i) {
-            unfilled_num[i] = static_cast<int>(clauses[i].variables.size());
-            sum += (1 - 1 / std::pow(2, unfilled_num[i])) * clauses[i].weight;
+            unspecified_num[i] = static_cast<int>(clauses[i].variables.size());
+            sum += (1 - 1 / std::pow(2, unspecified_num[i])) * clauses[i].weight;
         }
         return sum;
     }
 
-    double expectedIf(const List<Clause> &clauses, const List<int> &unfilled_num, const List<bool> &full_filled,
-                      const Variable &var, bool val) {
+    // 计算条件期望
+    double expectedConditional(const List<int> &unspecified_num, const List<bool> &is_satisfied,
+                               const Variable &var, bool val) {
+        const auto &clauses = formula.clauses;
         double sum = 0.0;
         for (int i = 0; i < clauses.size(); ++i) {
-            if (!full_filled[i] && unfilled_num[i]) {
+            if (is_satisfied[i]) {  // 子句已满足
+                sum += clauses[i].weight;
+            }
+            if (!is_satisfied[i] && unspecified_num[i]) { // 子句未满足 & 有空变量
                 auto iter = std::find(clauses[i].variables.begin(), clauses[i].variables.end(), var);
                 if (iter != clauses[i].variables.end()) { // 子句包含当前变量
                     if ((iter->type == Variable::VarType::positive && val) ||
                         (iter->type == Variable::VarType::negative && !val)) {
                         sum += clauses[i].weight;
                     } else {
-                        sum += (1 - 1 / std::pow(2, unfilled_num[i] - 1)) * clauses[i].weight;
+                        sum += (1 - 1 / std::pow(2, unspecified_num[i] - 1)) * clauses[i].weight;
                     }
                 } else { // 子句不包含当前变量
-                    sum += (1 - 1 / std::pow(2, unfilled_num[i])) * clauses[i].weight;
-                }
-            }
-            if (full_filled[i]) {  // 子句已完全填充
-                sum += clauses[i].weight;
-            }
-        }
-        return sum;
-    }
-
-    int numberFulfilledByVar(const List<Clause> &clauses, const List<int> &unfilled_num, const List<bool> &full_filled,
-                             const Variable &var, bool val) {
-        int sum = 0;
-        for (int i = 0; i < clauses.size(); ++i) {
-            if (!full_filled[i] && unfilled_num[i]) {
-                auto iter = std::find(clauses[i].variables.begin(), clauses[i].variables.end(), var);
-                if (iter != clauses[i].variables.end()) {
-                    if ((iter->type == Variable::VarType::positive && val) ||
-                        (iter->type == Variable::VarType::negative && !val)) {
-                        sum += clauses[i].weight;
-                    }
+                    sum += (1 - 1 / std::pow(2, unspecified_num[i])) * clauses[i].weight;
                 }
             }
         }
         return sum;
     }
 
-    void expectedUpdate(const List<Clause> &clauses, List<int> &unfilled_num, List<bool> &full_filled,
+    // 更新 unspecified_num & is_satisfied
+    void expectedUpdate(List<int> &unspecified_num, List<bool> &is_satisfied,
                         const Variable &var, bool val) {
+        const auto &clauses = formula.clauses;
         for (int i = 0; i < clauses.size(); ++i) {
-            if (!full_filled[i] && unfilled_num[i] != 0) {
+            if (!is_satisfied[i] && unspecified_num[i]) {
                 auto iter = std::find(clauses[i].variables.begin(), clauses[i].variables.end(), var);
                 if (iter != clauses[i].variables.end()) {
+                    --unspecified_num[i];
                     if ((iter->type == Variable::VarType::positive && val) ||
                         (iter->type == Variable::VarType::negative && !val)) {
-                        full_filled[i] = true;
+                        is_satisfied[i] = true;
                     }
-                    --unfilled_num[i];
                 }
             }
         }
