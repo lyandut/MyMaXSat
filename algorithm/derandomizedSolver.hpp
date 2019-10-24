@@ -25,7 +25,7 @@ public:
 
         std::cout << formula.toString() << std::endl;
         for (auto &v : formula.variables)
-            std::cout << v.toString() << ": " << v.value << std::endl;
+            std::cout << "X" << v.first << ": " << v.second << std::endl;
         std::cout << "Total value: " << total_weight << " " << total_weight2 << std::endl;
     }
 
@@ -36,15 +36,15 @@ private:
 
         expectedGeneral(unspecified_num);
         for (auto &v : formula.variables) {
-            double expectedTrue = expectedConditional(unspecified_num, is_satisfied, v, true);
-            double expectedFalse = expectedConditional(unspecified_num, is_satisfied, v, false);
+            double expectedTrue = expectedConditional(unspecified_num, is_satisfied, v.first, true);
+            double expectedFalse = expectedConditional(unspecified_num, is_satisfied, v.first, false);
 
             if (expectedTrue > expectedFalse) {
-                v.value = true;
-                expectedUpdate(unspecified_num, is_satisfied, v, true);
+                v.second = true;
+                expectedUpdate(unspecified_num, is_satisfied, v.first, true);
             } else {
-                v.value = false;
-                expectedUpdate(unspecified_num, is_satisfied, v, false);
+                v.second = false;
+                expectedUpdate(unspecified_num, is_satisfied, v.first, false);
             }
         }
 
@@ -67,8 +67,7 @@ private:
     }
 
     // 计算条件期望
-    double expectedConditional(const List<int> &unspecified_num, const List<bool> &is_satisfied,
-                               const Variable &var, bool val) {
+    double expectedConditional(const List<int> &unspecified_num, const List<bool> &is_satisfied, ID var, bool val) {
         const auto &clauses = formula.clauses;
         double sum = 0.0;
         for (int i = 0; i < clauses.size(); ++i) {
@@ -76,7 +75,8 @@ private:
                 sum += clauses[i].weight;
             }
             if (!is_satisfied[i] && unspecified_num[i]) { // 子句未满足 & 有空变量
-                auto iter = std::find(clauses[i].variables.begin(), clauses[i].variables.end(), var);
+                auto iter = std::find_if(clauses[i].variables.begin(), clauses[i].variables.end(),
+                                         [=](auto &v) { return v.id == var; });
                 if (iter != clauses[i].variables.end()) { // 子句包含当前变量
                     if ((iter->type == Variable::VarType::positive && val) ||
                         (iter->type == Variable::VarType::negative && !val)) {
@@ -93,12 +93,12 @@ private:
     }
 
     // 更新 unspecified_num & is_satisfied
-    void expectedUpdate(List<int> &unspecified_num, List<bool> &is_satisfied,
-                        const Variable &var, bool val) {
+    void expectedUpdate(List<int> &unspecified_num, List<bool> &is_satisfied, ID var, bool val) {
         const auto &clauses = formula.clauses;
         for (int i = 0; i < clauses.size(); ++i) {
             if (!is_satisfied[i] && unspecified_num[i]) {
-                auto iter = std::find(clauses[i].variables.begin(), clauses[i].variables.end(), var);
+                auto iter = std::find_if(clauses[i].variables.begin(), clauses[i].variables.end(),
+                                         [=](auto &v) { return v.id == var; });
                 if (iter != clauses[i].variables.end()) {
                     --unspecified_num[i];
                     if ((iter->type == Variable::VarType::positive && val) ||

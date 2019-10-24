@@ -12,13 +12,13 @@
 class Formula {
 public:
     List<Clause> clauses;
-    List<Variable> variables;
-private:
-    HashMap<ID, bool> variables_map;
+    HashMap<ID, bool> variables;
 
 public:
-    Formula(List<Clause> cla, List<Variable> var) : clauses(std::move(cla)), variables(std::move(var)) {
-        for (auto &v : variables) { variables_map[v.id] = v.value; }
+    Formula(List<Clause> cla, HashMap<ID, bool> var) : clauses(std::move(cla)), variables(std::move(var)) {}
+
+    Formula(List<Clause> cla, const List<Variable> &var) : clauses(std::move(cla)) {
+        for (auto &v : var) { variables[v.id] = false; }
     }
 
     Formula() = default;
@@ -29,7 +29,7 @@ public:
         for (auto &c : clauses) {
             bool satisfied = false;
             for (auto &v : c.variables) {
-                satisfied |= v.type == Variable::VarType::positive == getVariableValue(v);
+                satisfied |= v.type == Variable::VarType::positive == getVariableValue(v.id);
             }
             if (satisfied)
                 satisfied_clauses.push_back(c);
@@ -46,16 +46,10 @@ public:
     }
 
 private:
-    bool getVariableValue(Variable &var) {
-        auto iter = std::find(variables.begin(), variables.end(), var);
-        assert(iter != variables.end());
-        return iter->value;
-    }
-
     bool getVariableValue(ID var_id) {
-        auto iter = variables_map.find(var_id);
-        assert(iter != variables_map.end());
-        return variables_map.at(var_id);
+        auto iter = variables.find(var_id);
+        assert(iter != variables.end());
+        return variables.at(var_id);
     }
 
 };

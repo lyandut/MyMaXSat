@@ -25,7 +25,7 @@ public:
 
         std::cout << formula.toString() << std::endl;
         for (const auto &v : formula.variables)
-            std::cout << v.toString() << ": " << v.value << std::endl;
+            std::cout << "X" << v.first << ": " << v.second << std::endl;
         std::cout << "Total value: " << total_weight << std::endl;
     }
 
@@ -34,7 +34,7 @@ private:
         std::default_random_engine e(time(nullptr));
         std::bernoulli_distribution u(__p__);
         for (auto &var : formula.variables)
-            var.value = u(e);
+            var.second = u(e);
     }
 
 };

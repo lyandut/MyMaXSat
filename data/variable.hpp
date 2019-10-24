@@ -11,16 +11,13 @@ class Variable {
 
 public:
     ID id;
-    bool value;
     enum VarType {
         positive, negative
     } type;
 
 
 public:
-    Variable(int _id, bool _value, VarType _type) : id(_id), value(_value), type(_type) {}
-
-    Variable(int _id, VarType _type) : Variable(_id, false, _type) {}
+    Variable(int _id, VarType _type) : id(_id), type(_type) {}
 
     Variable(int _id) : Variable(_id, VarType::positive) {}
 
