@@ -23,7 +23,7 @@ int main() {
 
     clause = Clause(20);
     clause.addVariable({variables[0].id, Variable::VarType::negative});
-    clause.addVariable({variables[0].id, Variable::VarType::negative});
+    clause.addVariable({variables[1].id, Variable::VarType::negative});
     clauses.push_back(clause);
 
     Formula f(clauses, variables);
