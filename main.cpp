@@ -1,6 +1,7 @@
 #include <iostream>
 #include "algorithm/randomizedSolver.hpp"
 #include "algorithm/derandomizedSolver.hpp"
+#include "algorithm/LPSolver.hpp"
 
 int main() {
     List<Variable> variables = {{0},
@@ -36,6 +37,12 @@ int main() {
 
     DerandomizedSolver derandSolver(f);
     derandSolver.solve();
+
+	using namespace szx;
+	LPSolver lpSolver(f);
+	lpSolver.solve();
+
+
 
     return 0;
 }

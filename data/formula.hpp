@@ -46,9 +46,7 @@ public:
     }
 
 private:
-    bool getVariableValue(ID var_id) {
-        auto iter = variables.find(var_id);
-        assert(iter != variables.end());
+    inline bool getVariableValue(ID var_id) {
         return variables.at(var_id);
     }
 

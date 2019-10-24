@@ -1,15 +1,37 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.12)
 project(MyMaxSat)
 
 set(CMAKE_CXX_STANDARD 14)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}")
 
-add_executable(MyMaxSat main.cpp
-        data/variable.hpp data/clause.hpp data/formula.hpp
-        algorithm/randomizedSolver.hpp
-        algorithm/derandomizedSolver.hpp
-        config.h algorithm/LPSolver.hpp)
+set(Data
+    data/variable.hpp 
+	data/clause.hpp 
+	data/formula.hpp
+)
+
+set(Algorithm
+    algorithm/randomizedSolver.hpp
+    algorithm/derandomizedSolver.hpp
+    algorithm/LPSolver.hpp
+)
+
+set(MpSolver
+	MpSolver/Common.h
+	MpSolver/Config.h
+	MpSolver/LogSwitch.h
+	MpSolver/MpSolver.h
+	MpSolver/MpSolverBase.h
+	MpSolver/MpSolverGurobi.h
+	MpSolver/MpSolverGurobi.cpp
+	MpSolver/Utility.h
+)
+
+add_executable(MyMaxSat 
+	main.cpp config.h
+	${Data} ${Algorithm} ${MpSolver}
+)
 
 # Find Gurobi
 find_package(GUROBI REQUIRED)
