@@ -11,6 +11,7 @@
 #include "../data/formula.hpp"
 
 class BaseSolver {
+
 public:
 	Formula formula;
 private:

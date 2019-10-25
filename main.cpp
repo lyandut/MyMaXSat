@@ -2,6 +2,7 @@
 #include "algorithm/randomizedSolver.hpp"
 #include "algorithm/derandomizedSolver.hpp"
 #include "algorithm/LPSolver.hpp"
+#include "algorithm/LPDerandomizedSolver.hpp"
 
 int main() {
     List<Variable> variables = {{0},
@@ -29,10 +30,10 @@ int main() {
 
     Formula f(clauses, variables);
     
-	RandomizedSolver solver(f);
-    solver.solve();
+	RandomizedSolver randomizedSolver(f);
+    randomizedSolver.solve();
 
-   std::cout << "---" << std::endl;
+    std::cout << "---" << std::endl;
 
     DerandomizedSolver derandSolver(f);
     derandSolver.solve();
@@ -42,6 +43,9 @@ int main() {
 	using namespace szx;
 	LPSolver lpSolver(f);
 	lpSolver.solve();
+
+	LPDerandomizedSolver lpDerandomizedSolver(f);
+	lpDerandomizedSolver.solve();
 
 	system("PAUSE");
 

@@ -16,7 +16,7 @@ set(Algorithm
     algorithm/randomizedSolver.hpp
     algorithm/derandomizedSolver.hpp
     algorithm/LPSolver.hpp
-)
+	algorithm/LPDerandomizedSolver.hpp)
 
 set(MpSolver
 	MpSolver/Common.h

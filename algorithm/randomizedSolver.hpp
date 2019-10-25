@@ -7,12 +7,12 @@
 
 #include "baseSolver.hpp"
 
-class RandomizedSolver : BaseSolver {
+class RandomizedSolver : public BaseSolver {
 
 public:
 	using BaseSolver::BaseSolver;
 
-    void solve() {
+    void solve() override {
         randomize();
 		printResult();
     }

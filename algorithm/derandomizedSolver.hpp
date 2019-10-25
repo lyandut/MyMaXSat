@@ -10,12 +10,12 @@
 #include <cassert>
 #include "baseSolver.hpp"
 
-class DerandomizedSolver : BaseSolver {
+class DerandomizedSolver : virtual public BaseSolver {
 
 public:
 	using BaseSolver::BaseSolver;
 
-    void solve() {
+    void solve() override {
         int total_weight = derandomize();
 
 #pragma region resultChecker
