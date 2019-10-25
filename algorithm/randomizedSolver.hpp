@@ -10,12 +10,12 @@
 #include <ctime>
 #include "../data/formula.hpp"
 
-class Solver {
+class RandomizedSolver {
 public:
     Formula formula;
 
 public:
-    Solver(Formula &_formula) : formula(_formula) {}
+    RandomizedSolver(Formula &_formula) : formula(_formula) {}
 
     void solve() {
         randomize();

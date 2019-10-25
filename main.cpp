@@ -30,7 +30,7 @@ int main() {
     Formula f(clauses, variables);
     std::cout << "Formula looks like this:" << std::endl;
     std::cout << f.toString() << std::endl;
-    Solver solver(f);
+    RandomizedSolver solver(f);
     solver.solve();
 
    std::cout << "---" << std::endl;

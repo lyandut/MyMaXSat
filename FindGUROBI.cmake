@@ -16,7 +16,7 @@ else (GUROBI_INCLUDE_DIR)
                 gurobi_c++.h
             PATHS
                 "$ENV{GUROBI_HOME}/include"
-                "/Library/gurobi811/mac64/include"
+                # "/Library/gurobi811/mac64/include"
                 # "E:\\Program Files\\gurobi801\\win64\\include"
             )
 
@@ -25,7 +25,7 @@ else (GUROBI_INCLUDE_DIR)
                 gurobi gurobi80 gurobi81
             PATHS
                 "$ENV{GUROBI_HOME}/lib"
-                "/Library/gurobi811/mac64/lib"
+                # "/Library/gurobi811/mac64/lib"
                 # "E:\\Program Files\\gurobi801\\win64\\lib"
             )
 
@@ -40,7 +40,7 @@ else (GUROBI_INCLUDE_DIR)
                 ${GUROBI_LIB_NAME}
             PATHS
                 "$ENV{GUROBI_HOME}/lib"
-                "/Library/gurobi811/mac64/lib"
+                # "/Library/gurobi811/mac64/lib"
                 # "E:\\Program Files\\gurobi801\\win64\\lib"
             )
 
