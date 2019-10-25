@@ -28,9 +28,8 @@ int main() {
     clauses.push_back(clause);
 
     Formula f(clauses, variables);
-    std::cout << "Formula looks like this:" << std::endl;
-    std::cout << f.toString() << std::endl;
-    RandomizedSolver solver(f);
+    
+	RandomizedSolver solver(f);
     solver.solve();
 
    std::cout << "---" << std::endl;
@@ -38,11 +37,13 @@ int main() {
     DerandomizedSolver derandSolver(f);
     derandSolver.solve();
 
+	std::cout << "---" << std::endl;
+
 	using namespace szx;
 	LPSolver lpSolver(f);
 	lpSolver.solve();
 
-
+	system("PAUSE");
 
     return 0;
 }

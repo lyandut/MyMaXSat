@@ -6,7 +6,6 @@
 #define MYMAXSAT_LPSOLVER_HPP
 
 #include "../MpSolver/MpSolver.h"
-#include "../MpSolver/LogSwitch.h"
 #include "../data/formula.hpp"
 
 namespace szx {
@@ -14,19 +13,28 @@ namespace szx {
     using Dvar = MpSolver::DecisionVar;
     using Expr = MpSolver::LinearExpr;
 
-    class LPSolver {
+    class LPSolver : BaseSolver {
     public:
-        Formula formula;
-
-    public:
-        LPSolver(Formula &_formula) : formula(_formula) {}
+		using BaseSolver::BaseSolver;
 
         void solve() {
-            gurobiModel();
+			#ifdef USE_MPSOLVER
+			auto *lpFunc = mpModel;
+			#else
+			auto lpFunc = gurobiModel;
+			#endif // USE_MPSOLVER
+
+            List<double> p_list = lpFunc();
+			for (auto & var : formula.variables) {
+				var.second = getProbRandomNumber(p_list.at(var.first));
+			}
+			printResult();
         }
 
     private:
-        void mpModel() {
+        List<double> mpModel() {
+			List<double> p_list(formula.variables.size());
+
             /*
             * Initialize environment & empty model
             */
@@ -76,19 +84,24 @@ namespace szx {
 
             // Optimize model
             mp.optimize();
+			std::cout << "Obj: " << mp.getObjectiveValue() << std::endl;
+			for (const auto &v : formula.variables) {
+				std::cout << mp.getValue(y.at(v.first)) << std::endl;
+				p_list[v.first] = mp.getValue(y.at(v.first));
+			}
 
-            for (auto &y_j : y) {
-                Log(LogSwitch::Szx::MpSolver) << mp.getValue(y_j) << std::endl;
-            }
+			return p_list;
         }
 
-        void gurobiModel() {
+        List<double> gurobiModel() {
+			List<double> p_list(formula.variables.size());
+
             try {
                 /*
                 * Initialize environment & empty model
                 */
             	GRBEnv env = GRBEnv(true);
-            	env.set("LogFile", "max-sat.log");
+            	//env.set("LogFile", "max-sat.log");
             	env.start();
             	GRBModel gm = GRBModel(env);
 
@@ -135,22 +148,22 @@ namespace szx {
 
             	// Optimize model
             	gm.optimize();
-
-                Log(LogSwitch::Szx::MpSolver) << "Obj: " << gm.get(GRB_DoubleAttr_ObjVal) << std::endl;
-                for (auto &y_j : y) {
-                    Log(LogSwitch::Szx::MpSolver) << y_j.get(GRB_DoubleAttr_X) << std::endl;
-                }
+                std::cout << "Obj: " << gm.get(GRB_DoubleAttr_ObjVal) << std::endl;
+				for (const auto &v : formula.variables) {
+					std::cout << y.at(v.first).get(GRB_DoubleAttr_X) << std::endl;
+					p_list[v.first] = y.at(v.first).get(GRB_DoubleAttr_X);
+				}
             }
             catch (GRBException &e) {
-                Log(LogSwitch::Szx::MpSolver) << "Error code = " << e.getErrorCode() << std::endl;
-                Log(LogSwitch::Szx::MpSolver) << e.getMessage() << std::endl;
+                std::cout << "Error code = " << e.getErrorCode() << std::endl;
+                std::cout << e.getMessage() << std::endl;
             }
             catch (...) {
-                Log(LogSwitch::Szx::MpSolver) << "Exception during optimization" << std::endl;
+                std::cout << "Exception during optimization." << std::endl;
             }
+
+			return p_list;
         }
-
-
     };
 }
 

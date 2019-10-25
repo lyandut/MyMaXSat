@@ -5,28 +5,25 @@
 #ifndef MYMAXSAT_DERANDOMIZEDSOLVER_HPP
 #define MYMAXSAT_DERANDOMIZEDSOLVER_HPP
 
-#include <cmath>
 #include <algorithm>
-#include "../data/formula.hpp"
+#include <cmath>
+#include <cassert>
+#include "baseSolver.hpp"
 
-class DerandomizedSolver {
+class DerandomizedSolver : BaseSolver {
 
 public:
-    Formula formula;
-
-public:
-    DerandomizedSolver(Formula &_formula) : formula(_formula) {}
+	using BaseSolver::BaseSolver;
 
     void solve() {
         int total_weight = derandomize();
-        int total_weight2 = 0;
-        for (auto &c : formula.getSatisfiedClauses())
-            total_weight2 += c.weight;
 
-        std::cout << formula.toString() << std::endl;
-        for (auto &v : formula.variables)
-            std::cout << "X" << v.first << ": " << v.second << std::endl;
-        std::cout << "Total value: " << total_weight << " " << total_weight2 << std::endl;
+#pragma region resultChecker
+		if (total_weight == printResult()) {
+			// [TODO] add exception
+			std::cout << "Check Success" << std::endl;
+		}
+#pragma endregion resultChecker
     }
 
 private:
@@ -47,12 +44,12 @@ private:
                 expectedUpdate(unspecified_num, is_satisfied, v.first, false);
             }
         }
-
-        int total_weight = 0;
-        for (int i = 0; i < formula.clauses.size(); ++i) {
-            if (is_satisfied[i]) { total_weight += formula.clauses[i].weight; }
-        }
-        return total_weight;
+		
+		int total_weight = 0;
+		for (int i = 0; i < formula.clauses.size(); ++i) {
+			if (is_satisfied[i]) { total_weight += formula.clauses[i].weight; }
+		}
+		return total_weight;
     }
 
     // 计算一般期望，同时初始化 unfilled_num

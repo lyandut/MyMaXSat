@@ -19,7 +19,7 @@ using List = std::vector<T>;
 template <typename Key, typename Value>
 using HashMap = std::unordered_map<Key, Value>;
 
-
+#define USE_MPSOLVER
 
 
 
