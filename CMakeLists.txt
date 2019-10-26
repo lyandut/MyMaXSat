@@ -9,6 +9,7 @@ set(Data
     data/variable.hpp 
 	data/clause.hpp 
 	data/formula.hpp
+	data/instanceReader.hpp
 )
 
 set(Algorithm
