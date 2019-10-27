@@ -29,20 +29,24 @@ int main() {
     clauses.push_back(clause);
 
     Formula f(clauses, variables);
-    
+
+    std::cout << "=== 1. Randomized Solver ===" << std::endl;
+
 	RandomizedSolver randomizedSolver(f);
     randomizedSolver.solve();
 
-    std::cout << "---" << std::endl;
+    std::cout << "=== 2. Derandomized Solver ===" << std::endl;
 
-    DerandomizedSolver derandSolver(f);
-    derandSolver.solve();
+    DerandomizedSolver derandomizedSolver(f);
+    derandomizedSolver.solve();
 
-	std::cout << "---" << std::endl;
+    std::cout << "=== 3. LP Solver ===" << std::endl;
 
 	using namespace szx;
 	LPSolver lpSolver(f);
 	lpSolver.solve();
+
+    std::cout << "=== 4. LPDerandomized Solver ===" << std::endl;
 
 	LPDerandomizedSolver lpDerandomizedSolver(f);
 	lpDerandomizedSolver.solve();

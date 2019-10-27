@@ -17,7 +17,22 @@ public:
     LPDerandomizedSolver(Formula &_formula) : BaseSolver(_formula) {}
 
     void solve() override {
-        LPSolver::solve();
+        List<double>(LPDerandomizedSolver::*lpFunc)();
+#if MP_MODEL
+        lpFunc = &LPDerandomizedSolver::mpModel;
+#else
+        lpFunc = &LPDerandomizedSolver::gurobiModel;
+#endif // MP_MODEL
+
+        List<double> p_list = (this->*lpFunc)();
+        int total_weight = derandomize(p_list);
+
+#pragma region resultChecker
+        if (total_weight == printResult()) {
+            // [TODO] add exception
+            std::cout << "Check Success" << std::endl;
+        }
+#pragma endregion resultChecker
     }
 
 };

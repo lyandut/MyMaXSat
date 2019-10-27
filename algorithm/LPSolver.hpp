@@ -19,21 +19,21 @@ public:
     using BaseSolver::BaseSolver;
 
     void solve() override {
-        List<double> (LPSolver::*lpFunc)();
-        #if MP_MODEL
-            lpFunc = &LPSolver::mpModel;
-        #else
-            lpFunc = &LPSolver::gurobiModel;
-        #endif // MP_MODEL
+        List<double>(LPSolver::*lpFunc)();
+#if MP_MODEL
+        lpFunc = &LPSolver::mpModel;
+#else
+        lpFunc = &LPSolver::gurobiModel;
+#endif // MP_MODEL
 
         List<double> p_list = (this->*lpFunc)();
-        for (auto & var : formula.variables) {
+        for (auto &var : formula.variables) {
             var.second = getProbRandomNumber(p_list.at(var.first));
         }
         printResult();
     }
 
-private:
+protected:
     List<double> mpModel() {
         List<double> p_list(formula.variables.size());
 

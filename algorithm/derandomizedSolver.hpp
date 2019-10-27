@@ -13,28 +13,31 @@
 class DerandomizedSolver : virtual public BaseSolver {
 
 public:
-	using BaseSolver::BaseSolver;
+    using BaseSolver::BaseSolver;
 
     void solve() override {
-        int total_weight = derandomize();
+        List<double> p_list(formula.variables.size(), 0.5);
+        int total_weight = derandomize(p_list);
 
 #pragma region resultChecker
-		if (total_weight == printResult()) {
-			// [TODO] add exception
-			std::cout << "Check Success" << std::endl;
-		}
+        if (total_weight == printResult()) {
+            // [TODO] add exception
+            std::cout << "Check Success" << std::endl;
+        }
 #pragma endregion resultChecker
     }
 
-private:
-    int derandomize() {
+protected:
+    int derandomize(const List<double> &p_list) {
         List<int> unspecified_num(formula.clauses.size(), 0);   // 剩余未指定变量数
         List<bool> is_satisfied(formula.clauses.size(), false); // 子句是否满足
 
         expectedGeneral(unspecified_num);
         for (auto &v : formula.variables) {
-            double expectedTrue = expectedConditional(unspecified_num, is_satisfied, v.first, true);
-            double expectedFalse = expectedConditional(unspecified_num, is_satisfied, v.first, false);
+            double expectedTrue =
+                    expectedConditional(unspecified_num, is_satisfied, v.first, true) * p_list.at(v.first);
+            double expectedFalse =
+                    expectedConditional(unspecified_num, is_satisfied, v.first, false) * (1 - p_list.at(v.first));
 
             if (expectedTrue > expectedFalse) {
                 v.second = true;
@@ -44,12 +47,12 @@ private:
                 expectedUpdate(unspecified_num, is_satisfied, v.first, false);
             }
         }
-		
-		int total_weight = 0;
-		for (int i = 0; i < formula.clauses.size(); ++i) {
-			if (is_satisfied[i]) { total_weight += formula.clauses[i].weight; }
-		}
-		return total_weight;
+
+        int total_weight = 0;
+        for (int i = 0; i < formula.clauses.size(); ++i) {
+            if (is_satisfied[i]) { total_weight += formula.clauses[i].weight; }
+        }
+        return total_weight;
     }
 
     // 计算一般期望，同时初始化 unfilled_num

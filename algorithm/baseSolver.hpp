@@ -20,6 +20,8 @@ private:
 public:
 	BaseSolver(Formula &_formula) : formula(_formula) { e.seed(time(nullptr)); }
 
+	BaseSolver() = default;
+
 	virtual void solve() = 0;
 
 protected:
