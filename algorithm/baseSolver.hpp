@@ -25,6 +25,7 @@ public:
 	virtual void solve() = 0;
 
 protected:
+	// [todo] add LogSwitch
 	int printResult() {
 		int total_weight = 0;
 		for (const auto &c : formula.getSatisfiedClauses())

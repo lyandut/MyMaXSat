@@ -9,7 +9,7 @@
 #include <string>
 #include <unordered_map>
 
-using ID = short;
+using ID = int;
 
 using String = std::string;
 
@@ -21,7 +21,7 @@ using HashMap = std::unordered_map<Key, Value>;
 
 #define MP_MODEL 0
 
-
+const String InstanceFolder = "../Instance/";
 
 
 #endif //MYMAXSAT_CONFIG_H

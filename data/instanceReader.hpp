@@ -13,9 +13,19 @@
 class InstanceReader {
 public:
 	InstanceReader() : nbvar(0), nbclauses(0), top(-1) {}
+	InstanceReader(String year, String type, String inst) : inst_year(year), inst_type(type), inst_name(inst) {
+		String filename = InstanceFolder + year + '/' + type + '/' + inst;
+		std::cout << filename << std::endl;
+		if (!loadInstance(filename)) {
+			// [todo] add exception
+		}
+	}
+
+private:
 	bool loadInstance(String filename);
 
 public:
+	String inst_year;
 	String inst_type;
 	String inst_name;
 	int nbvar;
