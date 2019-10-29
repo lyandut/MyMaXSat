@@ -18,27 +18,30 @@ private:
 	std::default_random_engine e;
 
 public:
-	BaseSolver(Formula &_formula) : formula(_formula) { e.seed(time(nullptr)); }
+	BaseSolver(const Formula &_formula) : formula(_formula) { e.seed(time(nullptr)); }
 
 	BaseSolver() = default;
 
 	virtual void solve() = 0;
 
-protected:
-	// [todo] add LogSwitch
-	int printResult() {
+	int getResult(bool weight_soft_only = false, bool print_flag = false) {
 		int total_weight = 0;
-		for (const auto &c : formula.getSatisfiedClauses())
+		for (const auto &c : formula.getSatisfiedClauses()) {
+			if (weight_soft_only && c.weight > 1) { continue; }
 			total_weight += c.weight;
+		}	
 
-		std::cout << formula.toString() << std::endl;
-		for (const auto &v : formula.variables)
-			std::cout << "X" << v.first << ": " << v.second << std::endl;
-		std::cout << "Total value: " << total_weight << std::endl;
-
+		if (print_flag) {
+			std::cout << formula.toString() << std::endl;
+			for (const auto &v : formula.variables)
+				std::cout << "X" << v.first << ": " << v.second << std::endl;
+			std::cout << "Total value: " << total_weight << std::endl;
+		}
+		
 		return total_weight;
 	}
 
+protected:
 	bool getProbRandomNumber(double __p__ = 0.5) {
 		std::bernoulli_distribution u(__p__);
 		return u(e);

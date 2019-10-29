@@ -2,6 +2,8 @@
 ### My ###
 Instance/*
 !Instance/readme.md
+Solution/*
+!Solution/readme.md
 
 # Created by https://www.gitignore.io/api/c++,cmake,clion+all,visualstudio
 # Edit at https://www.gitignore.io/?templates=c++,cmake,clion+all,visualstudio

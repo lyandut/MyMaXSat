@@ -30,7 +30,6 @@ public:
         for (auto &var : formula.variables) {
             var.second = getProbRandomNumber(p_list.at(var.first));
         }
-        printResult();
     }
 
 protected:
@@ -88,7 +87,7 @@ protected:
         mp.optimize();
         std::cout << "Obj: " << mp.getObjectiveValue() << std::endl;
         for (const auto &v : formula.variables) {
-            std::cout << mp.getValue(y.at(v.first)) << std::endl;
+            //std::cout << mp.getValue(y.at(v.first)) << std::endl;
             p_list[v.first] = mp.getValue(y.at(v.first));
         }
 
@@ -152,7 +151,7 @@ protected:
             gm.optimize();
             std::cout << "Obj: " << gm.get(GRB_DoubleAttr_ObjVal) << std::endl;
             for (const auto &v : formula.variables) {
-                std::cout << y.at(v.first).get(GRB_DoubleAttr_X) << std::endl;
+                //std::cout << y.at(v.first).get(GRB_DoubleAttr_X) << std::endl;
                 p_list[v.first] = y.at(v.first).get(GRB_DoubleAttr_X);
             }
         }

@@ -15,10 +15,11 @@ public:
 	InstanceReader() : nbvar(0), nbclauses(0), top(-1) {}
 	InstanceReader(String year, String type, String inst) : inst_year(year), inst_type(type), inst_name(inst) {
 		String filename = InstanceFolder + year + '/' + type + '/' + inst;
-		std::cout << filename << std::endl;
-		if (!loadInstance(filename)) {
-			// [todo] add exception
-		}
+		
+		if (loadInstance(filename))
+			std::cout << filename << " load success." << std::endl;
+		else 
+			std::cout << filename << " load failed." << std::endl;
 	}
 
 private:

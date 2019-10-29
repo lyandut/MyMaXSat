@@ -14,7 +14,7 @@ namespace szx {
 class LPDerandomizedSolver : public DerandomizedSolver, public LPSolver {
 
 public:
-    LPDerandomizedSolver(Formula &_formula) : BaseSolver(_formula) {}
+    LPDerandomizedSolver(const Formula &_formula) : BaseSolver(_formula) {}
 
     void solve() override {
         List<double>(LPDerandomizedSolver::*lpFunc)();
@@ -25,12 +25,14 @@ public:
 #endif // MP_MODEL
 
         List<double> p_list = (this->*lpFunc)();
-        int total_weight = derandomize(p_list);
+        int calculate_weight = derandomize(p_list);
 
 #pragma region resultChecker
-        if (total_weight == printResult()) {
+		int check_weight = 0;
+		for (const auto &c : formula.getSatisfiedClauses()) { check_weight += c.weight; }
+        if (calculate_weight != check_weight) {
             // [TODO] add exception
-            std::cout << "Check Success" << std::endl;
+			std::cout << "LPDerandomizedSolver check failed." << std::endl;
         }
 #pragma endregion resultChecker
     }

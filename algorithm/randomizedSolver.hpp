@@ -12,10 +12,7 @@ class RandomizedSolver : public BaseSolver {
 public:
 	using BaseSolver::BaseSolver;
 
-    void solve() override {
-        randomize();
-		printResult();
-    }
+    void solve() override { randomize(); }
 
 private:
     void randomize(double __p__ = 0.5) {

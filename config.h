@@ -22,6 +22,6 @@ using HashMap = std::unordered_map<Key, Value>;
 #define MP_MODEL 0
 
 const String InstanceFolder = "../Instance/";
-
+const String SolutionFolder = "../Solution/";
 
 #endif //MYMAXSAT_CONFIG_H
