@@ -19,9 +19,16 @@ using List = std::vector<T>;
 template <typename Key, typename Value>
 using HashMap = std::unordered_map<Key, Value>;
 
-#define MP_MODEL 0
+#define THREAD_ON 1
+#define MP_MODEL 1
 
-const String InstanceFolder = "../Instance/";
-const String SolutionFolder = "../Solution/";
+struct Cfg {
+	static constexpr char InstanceFolder[] = "../Instance/";
+	static constexpr char SolutionFolder[] = "../Solution/";
+	static constexpr int GRBTimeoutInSec = 3600;
+	static constexpr int DerandomizedTimeoutInSec = 1800;
+	static constexpr int ThreadNumber = 4;
+};
+
 
 #endif //MYMAXSAT_CONFIG_H

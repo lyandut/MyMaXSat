@@ -14,7 +14,7 @@ class InstanceReader {
 public:
 	InstanceReader() : nbvar(0), nbclauses(0), top(-1) {}
 	InstanceReader(String year, String type, String inst) : inst_year(year), inst_type(type), inst_name(inst) {
-		String filename = InstanceFolder + year + '/' + type + '/' + inst;
+		String filename = Cfg::InstanceFolder + year + '/' + type + '/' + inst;
 		
 		if (loadInstance(filename))
 			std::cout << filename << " load success." << std::endl;

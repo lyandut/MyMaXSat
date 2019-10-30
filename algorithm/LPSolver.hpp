@@ -39,8 +39,10 @@ protected:
         /*
         * Initialize environment & empty model
         */
-        MpSolver::Configuration mpCfg(MpSolver::InternalSolver::GurobiMip);
+        MpSolver::Configuration mpCfg(MpSolver::InternalSolver::GurobiMip, Cfg::GRBTimeoutInSec);
         MpSolver mp(mpCfg);
+		mp.setMaxThread(Cfg::ThreadNumber);
+		//mp.setMaxThread(std::thread::hardware_concurrency());
 
         /*
         * Decision Variables

@@ -90,7 +90,7 @@ void runSingleInstance(String year, String type, String inst) {
 	int alg4 = lpDerandomizedSolver.getResult();
 
 	// record solution
-	std::ofstream logFile(SolutionFolder + year + ".log.csv", std::ios::app);
+	std::ofstream logFile(Cfg::SolutionFolder + year + ".log.csv", std::ios::app);
 	std::ostringstream log;
 	log << inst_reader.inst_type << "," << inst_reader.inst_name << ","
 		<< alg1 << "," << duration1 << "," << alg2 << "," << duration2 << "," << alg3 << "," << duration3 << "," << alg4 << "," << duration4

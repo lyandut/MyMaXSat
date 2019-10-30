@@ -8,7 +8,9 @@
 #include <algorithm>
 #include <cmath>
 #include <cassert>
+#include <thread>
 #include "baseSolver.hpp"
+#include "../MpSolver/Utility.h"
 
 class DerandomizedSolver : virtual public BaseSolver {
 
@@ -31,16 +33,35 @@ public:
 
 protected:
     int derandomize(const List<double> &p_list) {
-        List<int> unspecified_num(formula.clauses.size(), 0);   // 剩余未指定变量数
+		szx::Timer timer(static_cast<szx::Timer::Millisecond>(Cfg::DerandomizedTimeoutInSec * 1000)); // 超时检测
+       
+		List<int> unspecified_num(formula.clauses.size(), 0);   // 剩余未指定变量数
         List<bool> is_satisfied(formula.clauses.size(), false); // 子句是否满足
 
         expectedGeneral(unspecified_num);
         for (auto &v : formula.variables) {
-            double expectedTrue =
-                    expectedConditional(unspecified_num, is_satisfied, v.first, true) * p_list.at(v.first);
-            double expectedFalse =
-                    expectedConditional(unspecified_num, is_satisfied, v.first, false) * (1 - p_list.at(v.first));
+#if THREAD_ON
+			/*
+			// [TODO] 使用 std::future 和 std::promise 获取线程返回值
+			std::thread threadTrue(&DerandomizedSolver::expectedConditional, this, std::cref(unspecified_num), std::cref(is_satisfied), v.first, true);
+			std::thread threadFalse(&DerandomizedSolver::expectedConditional, this, std::cref(unspecified_num), std::cref(is_satisfied), v.first, false);
+			*/
+			double expectedTrue, expectedFalse;
+			std::thread threadTrue([&, this]() {
+				expectedTrue = expectedConditional(unspecified_num, is_satisfied, v.first, true) * p_list.at(v.first);
+			});
+			std::thread threadFalse([&, this]() {
+				expectedFalse = expectedConditional(unspecified_num, is_satisfied, v.first, false) * (1 - p_list.at(v.first));
+			});
+			threadTrue.join();
+			threadFalse.join();
+#else
+			double expectedTrue =
+				expectedConditional(unspecified_num, is_satisfied, v.first, true) * p_list.at(v.first);
+			double expectedFalse =
+				expectedConditional(unspecified_num, is_satisfied, v.first, false) * (1 - p_list.at(v.first));
 
+#endif // THREAD_ON
             if (expectedTrue > expectedFalse) {
                 v.second = true;
                 expectedUpdate(unspecified_num, is_satisfied, v.first, true);
@@ -48,6 +69,8 @@ protected:
                 v.second = false;
                 expectedUpdate(unspecified_num, is_satisfied, v.first, false);
             }
+
+			if (timer.isTimeOut()) { break; }
         }
 
         int total_weight = 0;

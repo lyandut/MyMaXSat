@@ -9,7 +9,7 @@
 #include "config.h"
 
 static void instFilter(List<String> &inst_list, String year, String type) {
-	String filter = InstanceFolder + year + '/' + type + "/*.*cnf";
+	String filter = Cfg::InstanceFolder + year + '/' + type + "/*.*cnf";
 	_finddata_t inst_data;
 	auto handler = _findfirst(filter.c_str(), &inst_data);
 	if (handler == -1) {
@@ -24,7 +24,7 @@ static void instFilter(List<String> &inst_list, String year, String type) {
 }
 
 static void typeFilter(HashMap<String, List<String>> &inst_map, String year) {
-	String filter = InstanceFolder + year + "/*.*";
+	String filter = Cfg::InstanceFolder + year + "/*.*";
 	_finddata_t type_data;
 	auto handler = _findfirst(filter.c_str(), &type_data);
 	if (handler == -1) {
