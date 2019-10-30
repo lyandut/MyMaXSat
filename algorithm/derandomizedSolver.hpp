@@ -26,7 +26,11 @@ public:
 		for (const auto &c : formula.getSatisfiedClauses()) { check_weight += c.weight; }
 		if (calculate_weight != check_weight) {
 			// [TODO] add exception
-			std::cout << "DerandomizedSolver check failed." << std::endl;
+			// 当 derandomize() 超时，check 失败，check_weight 为真实值
+			std::cout << "DerandomizedSolver check failed." 
+				<< " calculate_weight: " << calculate_weight
+				<< " check_weight: " << check_weight
+				<< std::endl;
 		}
 #pragma endregion resultChecker
     }

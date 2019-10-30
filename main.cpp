@@ -74,18 +74,20 @@ void runSingleInstance(String year, String type, String inst) {
 	double duration2 = (std::clock() - start) / static_cast<double>(CLOCKS_PER_SEC);
 	int alg2 = derandomizedSolver.getResult();
 
+	List<double> p_list;
+
 	using namespace szx;
 	std::cout << "=== 3. LP Solver ===" << std::endl;
 	LPSolver lpSolver(f);
 	start = std::clock();
-	lpSolver.solve();
+	lpSolver.solve(p_list);
 	double duration3 = (std::clock() - start) / static_cast<double>(CLOCKS_PER_SEC);
 	int alg3 = lpSolver.getResult();
 
 	std::cout << "=== 4. LPDerandomized Solver ===" << std::endl;
 	LPDerandomizedSolver lpDerandomizedSolver(f);
 	start = std::clock();
-	lpDerandomizedSolver.solve();
+	lpDerandomizedSolver.solve(p_list);
 	double duration4 = (std::clock() - start) / static_cast<double>(CLOCKS_PER_SEC);
 	int alg4 = lpDerandomizedSolver.getResult();
 

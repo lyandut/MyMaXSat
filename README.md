@@ -22,17 +22,23 @@ The C++ implementation of the four approximation algorithms for  **Maximum Satis
 
 ##  Randomized Algorithm
 
-- 算法描述：将 $x_{i}$ 分别以 $1/2$ 的概率设置为 0 或 1，则 $C_{i}$ 被满足的期望为 $E\left[ Z_{i} \right] = 1-2^{\left| C_{i} \right|}$，$CNF$ 被满足的期望为 $E\left[ Z \right] = \sum_{i=1}^{m} E\left[ Z_{i} \right] = \sum_{i=1}^{m} \big( 1-2^{\left| C_{i} \right|} \big)$。
+- 算法描述：将 $x_{i}$ 分别以 $1/2$ 的概率设置为 0 或 1，则 $C_{i}$ 被满足的期望为 $E\left[ Z_{i} \right] = 1-2^{- \left| C_{i} \right|}$，$CNF$ 被满足的期望为 $E\left[ Z \right] = \sum_{i=1}^{m} E\left[ Z_{i} \right] = \sum_{i=1}^{m} \big( 1-2^{- \left| C_{i} \right|} \big)$。
 - 算法流程：
-- 近似比：
+- 近似比：设 $min \left| C_{i} \right| = K$，则有 $m\left(1-2^{-K}\right) \leq \mathrm{E}[Z] \leq O P T \leq m$。
+- 算法分析：
+  - 简单粗暴，易于理解；
+  - 不可控，近似比只是给出理论上期望的上界，而未必每次都能得到相应质量的解。
 
 
 
 ##  Derandomized Algorithm
 
-- 算法描述：在算法①的基础上，每个变元 $x_{i}$ 都有 $1/2$ 的概率取 0 或 1，即$E\left[ Z \right] = \frac{1}{2} E\left[ Z | x_{i}=1 \right] + \frac{1}{2} E\left[ Z | x_{i}=0 \right]$。对于每个变元 $x_{i}$，比较 $\frac{1}{2} E\left[ Z | x_{i} = 1 \right]$ 和 $\frac{1}{2} E\left[ Z | x_{i} = 0 \right]$ 的大小，取其中较大的期望值
+- 算法描述：在算法①的基础上，每个变元 $x_{i}$ 都有 $1/2$ 的概率取 0 或 1，即 $E\left[ Z \right] = \frac{1}{2} E\left[ Z | x_{i}=1 \right] + \frac{1}{2} E\left[ Z | x_{i}=0 \right]$。对于每个变元 $x_{i}$，比较 $\frac{1}{2} E\left[ Z | x_{i} = 1 \right]$ 和 $\frac{1}{2} E\left[ Z | x_{i} = 0 \right]$ 的大小，选择二者中较大的期望值，取其对应的 $x_{i}$ 取值，在此基础上，进行下一步迭代。
 - 算法流程：
 - 近似比：
+- 算法分析：
+  - 可控
+  - 与变元顺序有关。
 
 
 

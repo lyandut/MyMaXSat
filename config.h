@@ -25,7 +25,7 @@ using HashMap = std::unordered_map<Key, Value>;
 struct Cfg {
 	static constexpr char InstanceFolder[] = "../Instance/";
 	static constexpr char SolutionFolder[] = "../Solution/";
-	static constexpr int GRBTimeoutInSec = 3600;
+	static constexpr int GRBTimeoutInSec = 1800;
 	static constexpr int DerandomizedTimeoutInSec = 1800;
 	static constexpr int ThreadNumber = 4;
 };

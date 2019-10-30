@@ -36,6 +36,20 @@ public:
         }
 #pragma endregion resultChecker
     }
+	 
+	// 使用 LPSover 的 p_list，不需要重新调用 Gurobi
+	void solve(const List<double> & p_list) {
+		int calculate_weight = derandomize(p_list);
+
+#pragma region resultChecker
+		int check_weight = 0;
+		for (const auto &c : formula.getSatisfiedClauses()) { check_weight += c.weight; }
+		if (calculate_weight != check_weight) {
+			// [TODO] add exception
+			std::cout << "LPDerandomizedSolver check failed." << std::endl;
+		}
+#pragma endregion resultChecker
+	}
 
 };
 

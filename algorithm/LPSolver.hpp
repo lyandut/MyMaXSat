@@ -32,6 +32,21 @@ public:
         }
     }
 
+	// 返回 p_list，给 LPDerandomizedSolver 使用，避免重新调用 Gurobi 计算
+	void solve(List<double> & p_list) {
+		List<double>(LPSolver::*lpFunc)();
+#if MP_MODEL
+		lpFunc = &LPSolver::mpModel;
+#else
+		lpFunc = &LPSolver::gurobiModel;
+#endif // MP_MODEL
+
+		p_list = (this->*lpFunc)();
+		for (auto &var : formula.variables) {
+			var.second = getProbRandomNumber(p_list.at(var.first));
+		}
+	}
+
 protected:
     List<double> mpModel() {
         List<double> p_list(formula.variables.size());
