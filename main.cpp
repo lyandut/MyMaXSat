@@ -130,7 +130,7 @@ int main() {
 	}
 #pragma endregion runAllInstances
 	
-	//system("PAUSE");
+	system("PAUSE");
 
 	return 0;
 }

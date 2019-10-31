@@ -24,7 +24,7 @@ public:
 
 	virtual void solve() = 0;
 
-	int getResult(bool weight_soft_only = false, bool print_flag = false) {
+	int getResult(bool weight_soft_only = true, bool print_flag = false) {
 		int total_weight = 0;
 		for (const auto &c : formula.getSatisfiedClauses()) {
 			if (weight_soft_only && c.weight > 1) { continue; }

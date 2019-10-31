@@ -49,70 +49,81 @@ public:
 
 protected:
     List<double> mpModel() {
-        List<double> p_list(formula.variables.size());
+		List<double> p_list(formula.variables.size(), 0.5);
+		try {
+			/*
+			* Initialize environment & empty model
+			*/
+			MpSolver::Configuration mpCfg(MpSolver::InternalSolver::GurobiMip, Cfg::GRBTimeoutInSec);
+			MpSolver mp(mpCfg);
+			mp.setMaxThread(Cfg::ThreadNumber);
+			//mp.setMaxThread(std::thread::hardware_concurrency());
 
-        /*
-        * Initialize environment & empty model
-        */
-        MpSolver::Configuration mpCfg(MpSolver::InternalSolver::GurobiMip, Cfg::GRBTimeoutInSec);
-        MpSolver mp(mpCfg);
-		mp.setMaxThread(Cfg::ThreadNumber);
-		//mp.setMaxThread(std::thread::hardware_concurrency());
+			/*
+			* Decision Variables
+			* 1. Bool: y_j correspond to the values of each boolean variable x_j.
+			* 2. Bool: q_i correspond to the truth value of each clause C_i.
+			* 3. Relax: 0 <= y_i, q_i <= 1.
+			*/
+			List<Dvar> y(formula.variables.size());
+			List<Dvar> q(formula.clauses.size());
+			for (const auto &v : formula.variables) {
+				y[v.first] = mp.addVar(MpSolver::VariableType::Real, 0, 1);
+			}
+			for (int i = 0; i < formula.clauses.size(); ++i) {
+				q[i] = mp.addVar(MpSolver::VariableType::Real, 0, 1);
+			}
 
-        /*
-        * Decision Variables
-        * 1. Bool: y_j correspond to the values of each boolean variable x_j.
-        * 2. Bool: q_i correspond to the truth value of each clause C_i.
-        * 3. Relax: 0 <= y_i, q_i <= 1.
-        */
-        List<Dvar> y(formula.variables.size());
-        List<Dvar> q(formula.clauses.size());
-        for (const auto &v : formula.variables) {
-            y[v.first] = mp.addVar(MpSolver::VariableType::Real, 0, 1);
-        }
-        for (int i = 0; i < formula.clauses.size(); ++i) {
-            q[i] = mp.addVar(MpSolver::VariableType::Real, 0, 1);
-        }
+			/*
+			* Constraint
+			* q_i <= Sum(y_j) + Sum(1 - ~y_j)
+			*/
+			for (int i = 0; i < formula.clauses.size(); ++i) {
+				Expr sum_variables = 0;
+				for (const auto &v : formula.clauses[i].variables) {
+					if (v.type == Variable::VarType::positive) {
+						sum_variables += y.at(v.id);
+					}
+					else {
+						sum_variables += (1 - y.at(v.id));
+					}
+				}
+				mp.addConstraint(q.at(i) <= sum_variables);
+			}
 
-        /*
-        * Constraint
-        * q_i <= Sum(y_j) + Sum(1 - ~y_j)
-        */
-        for (int i = 0; i < formula.clauses.size(); ++i) {
-            Expr sum_variables = 0;
-            for (const auto &v : formula.clauses[i].variables) {
-                if (v.type == Variable::VarType::positive) {
-                    sum_variables += y.at(v.id);
-                } else {
-                    sum_variables += (1 - y.at(v.id));
-                }
-            }
-            mp.addConstraint(q.at(i) <= sum_variables);
-        }
+			/*
+			* Objective Function
+			* maximize Sum(q_i)
+			*/
+			Expr obj = 0;
+			for (int i = 0; i < formula.clauses.size(); ++i) {
+				obj += q.at(i) * formula.clauses.at(i).weight;
+			}
+			mp.addObjective(obj, MpSolver::OptimaOrientation::Maximize);
 
-        /*
-        * Objective Function
-        * maximize Sum(q_i)
-        */
-        Expr obj = 0;
-        for (int i = 0; i < formula.clauses.size(); ++i) {
-            obj += q.at(i);
-        }
-        mp.addObjective(obj, MpSolver::OptimaOrientation::Maximize);
-
-        // Optimize model
-        mp.optimize();
-        std::cout << "Obj: " << mp.getObjectiveValue() << std::endl;
-        for (const auto &v : formula.variables) {
-            //std::cout << mp.getValue(y.at(v.first)) << std::endl;
-            p_list[v.first] = mp.getValue(y.at(v.first));
-        }
+			// Optimize model
+			mp.optimize();
+			std::cout << "Obj: " << mp.getObjectiveValue() << std::endl;
+			for (const auto &v : formula.variables) {
+				//std::cout << mp.getValue(y.at(v.first)) << std::endl;
+				p_list[v.first] = mp.getValue(y.at(v.first));
+			}
+		}
+		catch (GRBException &e) {
+			std::cout << "Error code = " << e.getErrorCode() << std::endl;
+			std::cout << e.getMessage() << std::endl;
+			return p_list;
+		}
+		catch (...) {
+			std::cout << "Exception during optimization." << std::endl;
+			return p_list;
+		}
 
         return p_list;
     }
 
     List<double> gurobiModel() {
-        List<double> p_list(formula.variables.size());
+        List<double> p_list(formula.variables.size(), 0.5);
 
         try {
             /*
@@ -156,11 +167,11 @@ protected:
 
             /*
             * Objective Function
-            * maximize Sum(q_i)
+            * maximize Sum(q_i * W_i)
             */
             GRBLinExpr obj = 0;
             for (int i = 0; i < formula.clauses.size(); ++i) {
-                obj += q.at(i);
+				obj += q.at(i) * formula.clauses.at(i).weight;
             }
             gm.setObjective(obj, GRB_MAXIMIZE);
 
@@ -175,9 +186,11 @@ protected:
         catch (GRBException &e) {
             std::cout << "Error code = " << e.getErrorCode() << std::endl;
             std::cout << e.getMessage() << std::endl;
+			return p_list;
         }
         catch (...) {
             std::cout << "Exception during optimization." << std::endl;
+			return p_list;
         }
 
         return p_list;
