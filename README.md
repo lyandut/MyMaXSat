@@ -109,10 +109,11 @@ $$
 
 - **近似比：**
 
-  以 $C_{1}=x_{1} \vee \ldots \vee x_{k}$ 为例，利用算数平均和几何平均不等式，得到 $C_{1}$ 的部分期望如下
+  以 $C_{1}=x_{1} \vee \ldots \vee x_{k}$ 为例，利用算数-几何平均不等式，得到 $C_{1}$ 的部分期望如下
   $$
-  \begin{aligned} \operatorname{Pr}\left[C_{1}\right] &=1-\prod_{j=1}^{k}\left(1-y_{j}^{*}\right) \\ & \geq 1-\left(\frac{1}{k} \sum_{j=1}^{k}\left(1-y_{j}^{*}\right)\right)^{k} \\ & \geq 1-\left(1-\frac{q_{1}^{*}}{k}\right)^{k} \\ & \geq q_{1}\left(1-\left(1-\frac{1}{k}\right)^{k}\right) \\ & \geq q_{1}(1-1 / e) \end{aligned}
+  \begin{aligned} \operatorname{Pr}\left[C_{1}\right] &=1-\prod_{j=1}^{k}\left(1-y_{j}^{*}\right) \\ & \geq 1-\left(\frac{1}{k} \sum_{j=1}^{k}\left(1-y_{j}^{*}\right)\right)^{k} \\ & \geq 1-\left(1-\frac{q_{1}^{*}}{k}\right)^{k} \\ & \geq 1-\left(1-\frac{1}{k}\right)^{k} \\ & \geq q_{1}\left(1-\left(1-\frac{1}{k}\right)^{k}\right) \\ & \geq q_{1}(1-1 / e) \end{aligned}
   $$
+  则 $\mathrm{E}[Z]=\sum_{i=1}^{m} \mathrm{E}\left[Z_{i}\right] \geq \sum_{i=1}^{m} \left(1-\left(1-\frac{1}{\left|C_{i}\right|}\right)^{\left|C_{i}\right|}\right) \geq m\left(1- \left( 1- \frac{1}{K} \right) ^ {K} \right)$.
 
 - **核心代码：**
 
@@ -186,10 +187,30 @@ $$
   在算法③的基础上去随机化，每个变元 $x_{i}$ 都有 $y_{i}^{*}$ 的概率取1，$1-y_{i}^{*}$的概率取0，即 $E\left[ Z \right] = y_{i}^{*} \cdot E\left[ Z | x_{i}=1 \right] + (1-y_{i}^{*}) \cdot E\left[ Z | x_{i}=0 \right]$。对于每个变元 $x_{i}$，比较 $y_{i}^{*} \cdot E\left[ Z | x_{i} = 1 \right]$ 和 $(1-y_{i}^{*}) \cdot E\left[ Z | x_{i} = 0 \right]$ 的大小，选择二者中较大的期望值，取其对应的 $x_{i}$ 取值。在此基础上，进行下一步迭代。
 
 - **近似比：**
+  $$
+  \mathrm{E}[Z | x] \geq \mathrm{E}[Z] \geq m\left(1- \left( 1- \frac{1}{K} \right) ^ {K} \right)
+  $$
+  
 
 - **核心代码：**
 
+  ```c++
+  void solve() {
+      List<double> p_list = gurobiModel(); // LP Rounding Algorithm
+      derandomize(p_list);                 // Derandomized Algorithm
+  }
+  ```
+
 - **算法分析：**
+
+  - 结果可控，且与变元顺序无关；
+
+  - 继承了算法②③的优缺点，四类算法中求解质量最好的，也是耗时最多的；
+
+  - 可能的优化方向：将算法②和算法④结合可以给出一个 $3/4$ 近似比的算法（每次从两个算法中随机挑选一个执行）
+    $$
+    \mathrm{E}[Z]=\sum_{i=1}^{m} \mathrm{E}\left[Z_{i}\right] \geq \sum_{i=1}^{m} \frac{1}{2}\left(\left(1-2^{-\left|C_{i}\right|}\right)+\left(1-\left(1-\frac{1}{\left|C_{i}\right|}\right)^{\left|C_{i}\right|}\right)\right) \geq(3 / 4) m
+    $$
 
 
 
