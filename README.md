@@ -190,7 +190,6 @@ $$
   $$
   \mathrm{E}[Z | x] \geq \mathrm{E}[Z] \geq m\left(1- \left( 1- \frac{1}{K} \right) ^ {K} \right)
   $$
-  
 
 - **核心代码：**
 
@@ -211,8 +210,6 @@ $$
     $$
     \mathrm{E}[Z]=\sum_{i=1}^{m} \mathrm{E}\left[Z_{i}\right] \geq \sum_{i=1}^{m} \frac{1}{2}\left(\left(1-2^{-\left|C_{i}\right|}\right)+\left(1-\left(1-\frac{1}{\left|C_{i}\right|}\right)^{\left|C_{i}\right|}\right)\right) \geq(3 / 4) m
     $$
-
-
 
 
 

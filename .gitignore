@@ -3,6 +3,8 @@
 Instance/*
 !Instance/readme.md
 Solution/*
+!Solution/mse18.csv
+!Solution/mse19.csv
 !Solution/readme.md
 
 # Created by https://www.gitignore.io/api/c++,cmake,clion+all,visualstudio
