@@ -5,7 +5,6 @@
 #include "algorithm/LPSolver.hpp"
 #include "algorithm/LPDerandomizedSolver.hpp"
 #include "data/instanceReader.hpp"
-#include "fileFilter.hpp"
 
 void test() {
 	List<Variable> variables = { {0}, {1} };
@@ -112,25 +111,29 @@ int main() {
 	//test();
 
 #pragma region runSingleInstance
-	//String year = "mse19";
-	//String type = "bcp";
-	//String inst = "c5315_F1@0.wcnf";
-	//runSingleInstance(year, type, inst);
+	String year = "mse19";
+	String type = "bcp";
+	String inst = "c5315_F1@0.wcnf";
+	runSingleInstance(year, type, inst);
 #pragma endregion runSingleInstance
 
+
+#if _OS_MS_WINDOWS
+#include "fileFilter.hpp"
+
 #pragma region runAllInstances
-	String year = "mse19";
-	HashMap<String, List<String>> inst_map;
-	typeFilter(inst_map, year);
-	for (const auto & each : inst_map) {
-		String type = each.first;
-		for (const auto & inst : each.second) {
-			runSingleInstance(year, type, inst);
-		}
-	}
+//	String year = "mse19";
+//	HashMap<String, List<String>> inst_map;
+//	typeFilter(inst_map, year);
+//	for (const auto & each : inst_map) {
+//		String type = each.first;
+//		for (const auto & inst : each.second) {
+//			runSingleInstance(year, type, inst);
+//		}
+//	}
 #pragma endregion runAllInstances
-	
 	system("PAUSE");
+#endif
 
 	return 0;
 }
