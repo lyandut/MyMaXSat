@@ -111,9 +111,14 @@ int main() {
 	//test();
 
 #pragma region runSingleInstance
-	String year = "mse19";
-	String type = "bcp";
-	String inst = "c5315_F1@0.wcnf";
+    String year = "mse18";
+    String type = "bcp-fir";
+    String inst = "bcp-fir-normalized-f20c10b_006_area_delay.wcnf";
+
+//	String year = "mse19";
+//	String type = "bcp";
+//	String inst = "c5315_F1@0.wcnf";
+
 	runSingleInstance(year, type, inst);
 #pragma endregion runSingleInstance
 

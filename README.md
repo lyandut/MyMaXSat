@@ -48,8 +48,9 @@ The C++ implementation of the four approximation algorithms for  **Maximum Satis
 - **算法分析：**
 
   - 简单粗暴，易于理解；
-  - 结果不可控，近似比只是给出理论上期望的上界，而未必每次都能得到相应质量的解。
-
+  - 结果不可控，近似比只是给出理论上期望的上界，而未必每次都能得到相应质量的解；
+- 无法求解 $WCNF$ 包含软硬子句的情况。
+  
   
 
 ##  Derandomized Algorithm
@@ -113,7 +114,11 @@ $$
   $$
   \begin{aligned} \operatorname{Pr}\left[C_{1}\right] &=1-\prod_{j=1}^{k}\left(1-y_{j}^{*}\right) \\ & \geq 1-\left(\frac{1}{k} \sum_{j=1}^{k}\left(1-y_{j}^{*}\right)\right)^{k} \\ & \geq 1-\left(1-\frac{q_{1}^{*}}{k}\right)^{k} \\ & \geq 1-\left(1-\frac{1}{k}\right)^{k} \\ & \geq q_{1}\left(1-\left(1-\frac{1}{k}\right)^{k}\right) \\ & \geq q_{1}(1-1 / e) \end{aligned}
   $$
-  则 $\mathrm{E}[Z]=\sum_{i=1}^{m} \mathrm{E}\left[Z_{i}\right] \geq \sum_{i=1}^{m} \left(1-\left(1-\frac{1}{\left|C_{i}\right|}\right)^{\left|C_{i}\right|}\right) \geq m\left(1- \left( 1- \frac{1}{K} \right) ^ {K} \right)$.
+  设 $min \left| C_{i} \right| = K$，则
+  $$
+  \mathrm{E}[Z]=\sum_{i=1}^{m} \mathrm{E}\left[Z_{i}\right] \geq \sum_{i=1}^{m} \left(1-\left(1-\frac{1}{\left|C_{i}\right|}\right)^{\left|C_{i}\right|}\right) \geq m\left(1- \left( 1- \frac{1}{K} \right) ^ {K} \right)
+  $$
+  
 
 - **核心代码：**
 
@@ -176,7 +181,9 @@ $$
 - **算法分析：**
 
   - 结果相对可控，较算法①求解质量有较大提升；
-  - 随着变元数目增多，求解时间也逐渐延长；伴随出现的还有内存溢出、浮点数溢出等问题，需要增加相应的异常处理代码。
+  - 随着变元数目增多，求解时间也逐渐延长（设置计时器为30分钟控制超时）；
+  - 伴随出现的还有内存溢出、浮点数溢出等问题，需要增加相应的异常处理代码；
+  - 无法求解 $WCNF$ 包含软硬子句的情况。
 
 
 
